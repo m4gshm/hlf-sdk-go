@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"flag"
 
@@ -65,7 +66,7 @@ func main() {
 }
 
 func prepareTransArgs(args string) api.TransArgs {
-	var t map[string]json.RawMessage
+	var t map[string]string
 	var err error
 	if err = json.Unmarshal([]byte(args), &t); err != nil {
 		panic(err)
@@ -74,7 +75,7 @@ func prepareTransArgs(args string) api.TransArgs {
 	tt := api.TransArgs{}
 
 	for k, v := range t {
-		if tt[k], err = v.MarshalJSON(); err != nil {
+		if tt[k], err = base64.StdEncoding.DecodeString(v); err != nil {
 			panic(err)
 		}
 	}
