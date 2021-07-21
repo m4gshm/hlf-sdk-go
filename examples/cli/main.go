@@ -23,13 +23,15 @@ var (
 	mspPath    = flag.String(`mspPath`, ``, `path to admin certificate`)
 	configPath = flag.String(`configPath`, ``, `path to configuration file`)
 
-	channel     = flag.String(`channel`, ``, `channel name`)
-	cc          = flag.String(`cc`, ``, `chaincode name`)
-	ccPath      = flag.String(`ccPath`, ``, `chaincode path`)
-	ccVersion   = flag.String(`ccVersion`, ``, `chaincode version`)
-	ccPolicy    = flag.String(`ccPolicy`, ``, `chaincode endorsement policy`)
-	ccArgs      = flag.String(`ccArgs`, ``, `chaincode instantiation arguments`)
-	ccTransient = flag.String(`ccTransient`, ``, `chaincode transient arguments`)
+	channel       = flag.String(`channel`, ``, `channel name`)
+	cc            = flag.String(`cc`, ``, `chaincode name`)
+	ccPath        = flag.String(`ccPath`, ``, `chaincode path`)
+	ccVersion     = flag.String(`ccVersion`, ``, `chaincode version`)
+	ccPolicy      = flag.String(`ccPolicy`, ``, `chaincode endorsement policy`)
+	ccArgs        = flag.String(`ccArgs`, ``, `chaincode instantiation arguments`)
+	ccTransient   = flag.String(`ccTransient`, ``, `chaincode transient arguments`)
+	ccInstall     = flag.Bool(`ccInstall`, true, `install chaincode`)
+	ccInstantiate = flag.Bool(`ccInstantiate`, true, `instantiate chaincode`)
 )
 
 func main() {
@@ -46,20 +48,24 @@ func main() {
 		log.Fatalln(`unable to initialize core:`, err)
 	}
 
-	if err = core.Chaincode(*cc).Install(ctx, *ccPath, *ccVersion); err != nil {
-		log.Fatalln(err)
+	if *ccInstall {
+		if err = core.Chaincode(*cc).Install(ctx, *ccPath, *ccVersion); err != nil {
+			log.Fatalln(err)
+		}
 	}
 
-	if err = core.Chaincode(*cc).Instantiate(
-		ctx,
-		*channel,
-		*ccPath,
-		*ccVersion,
-		*ccPolicy,
-		util.ToChaincodeArgs(*ccArgs),
-		prepareTransArgs(*ccTransient),
-	); err != nil {
-		log.Fatalln(err)
+	if *ccInstantiate {
+		if err = core.Chaincode(*cc).Instantiate(
+			ctx,
+			*channel,
+			*ccPath,
+			*ccVersion,
+			*ccPolicy,
+			util.ToChaincodeArgs(*ccArgs),
+			prepareTransArgs(*ccTransient),
+		); err != nil {
+			log.Fatalln(err)
+		}
 	}
 
 	log.Println(`successfully initiated`)
